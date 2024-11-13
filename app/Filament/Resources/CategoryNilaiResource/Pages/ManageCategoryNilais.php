@@ -19,6 +19,14 @@ class ManageCategoryNilais extends ManageRecords
 
     public function getTitle(): string
     {
-        return 'Category Nilai';
+        $locale = app()->getLocale();
+
+        if($locale == 'id'){
+            return 'Kategori Nilai';
+        } else {
+            return 'Category Nilai';
+        }
     }
+
+    
 }

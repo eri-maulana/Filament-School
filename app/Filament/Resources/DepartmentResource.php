@@ -11,6 +11,8 @@ use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
+use Filament\Tables\Contracts\HasTable;
+use stdClass;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\DepartmentResource\Pages;
@@ -20,7 +22,7 @@ class DepartmentResource extends Resource
 {
     protected static ?string $model = Department::class;
 
-    protected static ?string $navigationLabel = 'Department';
+    // protected static ?string $navigationLabel = 'Department';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -49,6 +51,16 @@ class DepartmentResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('no')->state(
+                    static function (HasTable $livewire, stdClass $rowLoop): string {
+                        return (string) (
+                            $rowLoop->iteration +
+                            ($livewire->getTableRecordsPerPage() * (
+                                $livewire->getTablePage() - 1
+                            ))
+                        );
+                    }
+                ),
                 Tables\Columns\TextColumn::make('name_department')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('slug')
@@ -89,5 +101,17 @@ class DepartmentResource extends Resource
             'create' => Pages\CreateDepartment::route('/create'),
             'edit' => Pages\EditDepartment::route('/{record}/edit'),
         ];
+    }
+
+    public static function getLabel(): ?string 
+    {
+
+        $locale = app()->getLocale();
+
+        if($locale == 'id'){
+            return 'Jurusan';
+        } else {
+            return 'Department';
+        }
     }
 }

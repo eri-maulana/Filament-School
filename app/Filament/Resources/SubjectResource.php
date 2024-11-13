@@ -15,12 +15,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Set;
 use Illuminate\Support\Str;
+use Filament\Tables\Contracts\HasTable;
+use stdClass;
 
 class SubjectResource extends Resource
 {
     protected static ?string $model = Subject::class;
 
-    protected static ?string $navigationLabel = 'Subject';
+    // protected static ?string $navigationLabel = 'Subject';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -51,6 +53,16 @@ class SubjectResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('no')->state(
+                    static function (HasTable $livewire, stdClass $rowLoop): string {
+                        return (string) (
+                            $rowLoop->iteration +
+                            ($livewire->getTableRecordsPerPage() * (
+                                $livewire->getTablePage() - 1
+                            ))
+                        );
+                    }
+                ),
                 Tables\Columns\TextColumn::make('kode')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('name')
@@ -93,5 +105,17 @@ class SubjectResource extends Resource
             'create' => Pages\CreateSubject::route('/create'),
             'edit' => Pages\EditSubject::route('/{record}/edit'),
         ];
+    }
+
+    public static function getLabel(): ?string 
+    {
+
+        $locale = app()->getLocale();
+
+        if($locale == 'id'){
+            return 'Mata Pelajaran';
+        } else {
+            return 'Subject';
+        }
     }
 }

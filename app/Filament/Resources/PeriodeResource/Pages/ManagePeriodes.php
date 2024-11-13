@@ -19,6 +19,14 @@ class ManagePeriodes extends ManageRecords
 
     public function getTitle(): string
     {
-        return 'Periode';
+        $locale = app()->getLocale();
+
+        if($locale == 'id'){
+            return 'Periode';
+        } else {
+            return 'Periode';
+        }
     }
+
+
 }

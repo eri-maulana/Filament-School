@@ -13,6 +13,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Forms\Set;
 use Illuminate\Support\Str;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Contracts\HasTable;
+use stdClass;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -20,7 +23,7 @@ class ClassroomResource extends Resource
 {
     protected static ?string $model = Classroom::class;
 
-    protected static ?string $navigationLabel = 'Classroom';
+    // protected static ?string $navigationLabel = 'Classroom';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -47,6 +50,16 @@ class ClassroomResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('no')->state(
+                    static function (HasTable $livewire, stdClass $rowLoop): string {
+                        return (string) (
+                            $rowLoop->iteration +
+                            ($livewire->getTableRecordsPerPage() * (
+                                $livewire->getTablePage() - 1
+                            ))
+                        );
+                    }
+                ),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('slug')
@@ -87,5 +100,17 @@ class ClassroomResource extends Resource
             'create' => Pages\CreateClassroom::route('/create'),
             'edit' => Pages\EditClassroom::route('/{record}/edit'),
         ];
+    }
+
+    public static function getLabel(): ?string 
+    {
+
+        $locale = app()->getLocale();
+
+        if($locale == 'id'){
+            return 'Kelas';
+        } else {
+            return 'Classroom';
+        }
     }
 }

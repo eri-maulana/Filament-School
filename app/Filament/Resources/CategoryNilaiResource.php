@@ -11,6 +11,9 @@ use Illuminate\Support\Str;
 use App\Models\CategoryNilai;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Contracts\HasTable;
+use stdClass;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\CategoryNilaiResource\Pages;
@@ -20,9 +23,10 @@ class CategoryNilaiResource extends Resource
 {
     protected static ?string $model = CategoryNilai::class;
 
-    protected static ?string $navigationLabel = 'Category Nilai';
+    // protected static ?string $navigationLabel = 'Kategori Nilai';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
 
     public static function form(Form $form): Form
     {
@@ -47,6 +51,17 @@ class CategoryNilaiResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('no')
+                    ->state(
+                        static function (HasTable $livewire, stdClass $rowLoop): string {
+                            return (string) (
+                                $rowLoop->iteration +
+                                ($livewire->getTableRecordsPerPage() * (
+                                    $livewire->getTablePage() - 1
+                                ))
+                            );
+                        }
+                    ),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('slug')
@@ -79,5 +94,17 @@ class CategoryNilaiResource extends Resource
         return [
             'index' => Pages\ManageCategoryNilais::route('/'),
         ];
+    }
+
+    public static function getLabel(): ?string 
+    {
+
+        $locale = app()->getLocale();
+
+        if($locale == 'id'){
+            return 'Kategori Nilai';
+        } else {
+            return 'Category Nilai';
+        }
     }
 }
