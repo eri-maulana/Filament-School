@@ -5,12 +5,16 @@ namespace App\Filament\Resources\TeacherResource\RelationManagers;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Periode;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use App\Models\Classroom;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Actions\Action;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
 
@@ -23,13 +27,38 @@ class ClassroomRelationManager extends RelationManager
         return $form
             ->schema([
                 Select::make('classrooms_id')
-                    ->label('Select Class')
+                    ->label('Pilih Kelas')
                     ->options(Classroom::all()->pluck('name', 'id'))
-                    ->searchable(),
+                    ->searchable()
+                    ->relationship('classroom', 'name')
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
+                        Hidden::make('slug'),
+                    ])
+                    ->createOptionAction(function(Action $action){
+                        return $action 
+                            ->modalHeading('Tambah Kelas')
+                            ->modalButton('Tambah Kelas')
+                            ->modalWidth('2xl');
+                    }),
                 Select::make('periode_id')
-                    ->label('Select Periode')
+                    ->label('Pilih Periode')
                     ->options(Periode::all()->pluck('name','id'))
-                    ->searchable(),
+                    ->searchable()
+                    ->relationship('periode', 'name')
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Tambah Periode')
+                            ->required(),
+                    ])
+                    ->createOptionAction(function(Action $action){
+                        return $action 
+                            ->modalHeading('Tambah Periode')
+                            ->modalButton('Tambah Periode')
+                            ->modalWidth('2xl');
+                    }),
                 
             ]);
     }
