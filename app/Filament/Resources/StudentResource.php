@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Illuminate\Support\Collection;
 use Filament\Forms\Components\Card;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Contracts\HasTable;
@@ -92,6 +93,8 @@ class StudentResource extends Resource
                     ->searchable(),
                 Tables\Columns\ImageColumn::make('profile')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->formatStateUsing(fn(string $state): string => ucwords("{$state}")),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -110,6 +113,21 @@ class StudentResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('Accept')
+                        ->icon('heroicon-m-check')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records){
+                            return $records->each->update(['status' => 'accept']);
+                        }),
+                    Tables\Actions\BulkAction::make('Off')
+                        ->icon('heroicon-m-x-circle')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records){
+                            return $records->each(function ($record){
+                                $id = $record->id;
+                                Student::where('id', $id)->update(['status' => 'off']);
+                            });
+                        }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
