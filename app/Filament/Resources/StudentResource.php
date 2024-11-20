@@ -12,6 +12,7 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Illuminate\Support\Collection;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Contracts\HasTable;
 use Illuminate\Database\Eloquent\Builder;
@@ -113,19 +114,18 @@ class StudentResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('Accept')
+                    Tables\Actions\BulkAction::make('Ubah Status')
                         ->icon('heroicon-m-check')
                         ->requiresConfirmation()
-                        ->action(function (Collection $records){
-                            return $records->each->update(['status' => 'accept']);
-                        }),
-                    Tables\Actions\BulkAction::make('Off')
-                        ->icon('heroicon-m-x-circle')
-                        ->requiresConfirmation()
-                        ->action(function (Collection $records){
-                            return $records->each(function ($record){
-                                $id = $record->id;
-                                Student::where('id', $id)->update(['status' => 'off']);
+                        ->form([
+                            Select::make('Status')
+                                ->label('Status')
+                                ->options(['accept', 'Diterima', 'off' => 'Ditolak', 'move' => 'Pindah', 'grade' => 'Nilai'])
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data) {
+                            $records->each(function ($record) use ($data) {
+                                Student::where('id', $record->id)->update(['status' => $data['Status']]);
                             });
                         }),
                     Tables\Actions\DeleteBulkAction::make(),
